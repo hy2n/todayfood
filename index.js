@@ -1,6 +1,7 @@
 // express 인스턴스 생성 및 app에 저장
 const express = require("express");
 const app = express();
+const axios = require('axios');
 
 // 8000번 포트로 지정
 const port = 8000;
