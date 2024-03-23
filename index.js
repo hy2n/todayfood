@@ -77,23 +77,31 @@ app.get("/request/:date", (req, res) => {
                 return res.status(500).send("서버 오류 발생");
             }
             var obj = JSON.parse(body);
-            
-            const mealInfo = obj.mealServiceDietInfo[1];
 
             let morning = "";
             let lunch = "";
             let evening = "";
 
-            mealInfo.row.forEach(row => {
-                let cleanedDish = row.DDISH_NM.replace(/\./g, '').replace(/\(\d+\)/g, ''); // '.'과 소괄호 안의 숫자들을 제거합니다.
-                if (row.MMEAL_SC_NM === "조식") {
-                    morning = cleanedDish;
-                } else if (row.MMEAL_SC_NM === "중식") {
-                    lunch = cleanedDish;
-                } else if (row.MMEAL_SC_NM === "석식") {
-                    evening = cleanedDish;
-                }
-            });
+            const mealServiceDietInfo = obj.mealServiceDietInfo;
+            if (!mealServiceDietInfo) {
+                morning = '미제공';
+                lunch = '미제공';
+                evening = '미제공';
+            }
+            else {
+                const mealInfo = mealServiceDietInfo[1];
+
+                mealInfo.row.forEach(row => {
+                    let cleanedDish = row.DDISH_NM.replace(/\./g, '').replace(/\(\d+\)/g, ''); // '.'과 소괄호 안의 숫자들을 제거합니다.
+                    if (row.MMEAL_SC_NM === "조식") {
+                        morning = cleanedDish;
+                    } else if (row.MMEAL_SC_NM === "중식") {
+                        lunch = cleanedDish;
+                    } else if (row.MMEAL_SC_NM === "석식") {
+                        evening = cleanedDish;
+                    }
+                });
+            }
 
             // 클라이언트에게 조식, 중식, 석식에 해당하는 요리를 응답으로 보냅니다.
 
