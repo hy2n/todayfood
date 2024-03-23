@@ -21,7 +21,7 @@ app.use('/static', express.static('static'));
 // test.ejs 실행
 app.get("/", (req, res) => {
     let today = new Date();
-    res.render("food", {
+    res.render("home", {
         name: 'Current Time : ' + today
     });
 })
@@ -49,9 +49,12 @@ function readCSV(filename, callback) {
 
 app.get("/request/:date", (req, res) => {
     const date = req.params.date;
-    if (!(date)) {
-        console.log("no date info!");
+    if (!date) {
+        // 날짜가 전달되지 않은 경우에 대한 처리
+        console.log("No date information provided.");
+        return res.status(400).send("날짜 정보가 제공되지 않았습니다.");
     }
+
     readCSV('info.csv', function (data) {
         if (!data) {
             console.log("CSV 파일이 없습니다. 수동으로 설정해주세요.");
@@ -101,12 +104,21 @@ app.get("/request/:date", (req, res) => {
                         evening = cleanedDish;
                     }
                 });
+                morning = morning.replace(/<br\/>/g, ', ');
+                lunch = lunch.replace(/<br\/>/g, ', ');
+                evening = evening.replace(/<br\/>/g, ', ');
             }
-
+            let today = new Date();
             // 클라이언트에게 조식, 중식, 석식에 해당하는 요리를 응답으로 보냅니다.
+            let year = today.getFullYear(); // 년도
+            let month = today.getMonth() + 1;  // 월
+            let date = today.getDate();  // 날짜
 
             res.render("food", {
-                name: 'Current Time : ' + morning
+                date: year + '/' + month + '/' + date + '일 급식',
+                morning: morning,
+                lunch: lunch,
+                evening: evening
             });
 
         });
