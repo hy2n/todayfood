@@ -27,14 +27,35 @@ app.listen(port, () => {
     console.log("SERVER started : ", port);
 })
 
+function readCSV(filename, callback) {
+    const results = [];
+    fs.createReadStream(filename)
+        .pipe(csv())
+        .on('data', (data) => results.push(data))
+        .on('end', () => {
+            callback(results);
+        })
+        .on('error', (err) => {
+            console.error("CSV 파일을 읽는 중 오류가 발생했습니다.");
+            console.error(err);
+            callback(null);
+        });
+}
+
+
 app.get("/request", (req, res) => {
-    var nx = '';
-    var ny = '';
+
+    readCSV('info.csv',function (data) {
+
+    });
+
     const options = {
-        uri: "https://open.neis.go.kr/hub/mealServiceDietInfo?ATPT_OFCDC_SC_CODE=G10&SD_SCHUL_CODE=7430310&MLSV_YMD=202403&type=json",
+        uri: "https://open.neis.go.kr/hub/mealServiceDietInfo",
         qs: {
-            gridx: nx,
-            gridy: ny
+            ATPT_OFCDC_SC_CODE: BCode,
+            SD_SCHUL_CODE: SchoolCode,
+            MLSV_YMD: date,
+            type: "json"
         }
     };
     request(options, function (err, response, body) {
@@ -42,10 +63,29 @@ app.get("/request", (req, res) => {
             // 오류가 발생하면 클라이언트에게 오류 메시지를 응답으로 보냅니다.
             return res.status(500).send("서버 오류 발생");
         }
-        var obj = JSON.parse(body);
-        console.log(obj);
 
-        // 요청에 대한 응답을 클라이언트에게 보냅니다.
-        res.json(obj);
+        const mealInfo = obj.mealServiceDietInfo[1];
+        
+        let morning = "";
+        let lunch = "";
+        let evening = "";
+
+        mealInfo.row.forEach(row => {
+            let cleanedDish = row.DDISH_NM.replace(/\./g, '').replace(/\(\d+\)/g, ''); // '.'과 소괄호 안의 숫자들을 제거합니다.
+            if (row.MMEAL_SC_NM === "조식") {
+                morning = cleanedDish;
+            } else if (row.MMEAL_SC_NM === "중식") {
+                lunch = cleanedDish;
+            } else if (row.MMEAL_SC_NM === "석식") {
+                evening = cleanedDish;
+            }
+        });
+
+        // 클라이언트에게 조식, 중식, 석식에 해당하는 요리를 응답으로 보냅니다.
+
+        res.render("food", {
+            name: 'Current Time : ' + morning
+        });
+
     });
 });
