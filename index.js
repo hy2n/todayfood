@@ -4,6 +4,10 @@ const app = express();
 const axios = require('axios');
 const request = require('request');
 
+const fs = require('fs');
+const csv = require('csv-parser');
+
+
 // 8000번 포트로 지정
 const port = 8000;
 
@@ -43,49 +47,62 @@ function readCSV(filename, callback) {
 }
 
 
-app.get("/request", (req, res) => {
-
-    readCSV('info.csv',function (data) {
-
-    });
-
-    const options = {
-        uri: "https://open.neis.go.kr/hub/mealServiceDietInfo",
-        qs: {
-            ATPT_OFCDC_SC_CODE: BCode,
-            SD_SCHUL_CODE: SchoolCode,
-            MLSV_YMD: date,
-            type: "json"
-        }
-    };
-    request(options, function (err, response, body) {
-        if (err) {
-            // 오류가 발생하면 클라이언트에게 오류 메시지를 응답으로 보냅니다.
-            return res.status(500).send("서버 오류 발생");
+app.get("/request/:date", (req, res) => {
+    const date = req.params.date;
+    if (!(date)) {
+        console.log("no date info!");
+    }
+    readCSV('info.csv', function (data) {
+        if (!data) {
+            console.log("CSV 파일이 없습니다. 수동으로 설정해주세요.");
+            return;
         }
 
-        const mealInfo = obj.mealServiceDietInfo[1];
-        
-        let morning = "";
-        let lunch = "";
-        let evening = "";
+        // CSV 데이터에서 원하는 값을 찾습니다.
+        const BCode = data[0].BCode;
+        const SchoolCode = data[0].SchoolCode;
 
-        mealInfo.row.forEach(row => {
-            let cleanedDish = row.DDISH_NM.replace(/\./g, '').replace(/\(\d+\)/g, ''); // '.'과 소괄호 안의 숫자들을 제거합니다.
-            if (row.MMEAL_SC_NM === "조식") {
-                morning = cleanedDish;
-            } else if (row.MMEAL_SC_NM === "중식") {
-                lunch = cleanedDish;
-            } else if (row.MMEAL_SC_NM === "석식") {
-                evening = cleanedDish;
+        const options = {
+            uri: "https://open.neis.go.kr/hub/mealServiceDietInfo",
+            qs: {
+                ATPT_OFCDC_SC_CODE: BCode,
+                SD_SCHUL_CODE: SchoolCode,
+                MLSV_YMD: date,
+                type: "json"
             }
+        };
+        request(options, function (err, response, body) {
+            if (err) {
+                // 오류가 발생하면 클라이언트에게 오류 메시지를 응답으로 보냅니다.
+                return res.status(500).send("서버 오류 발생");
+            }
+            var obj = JSON.parse(body);
+            
+            const mealInfo = obj.mealServiceDietInfo[1];
+
+            let morning = "";
+            let lunch = "";
+            let evening = "";
+
+            mealInfo.row.forEach(row => {
+                let cleanedDish = row.DDISH_NM.replace(/\./g, '').replace(/\(\d+\)/g, ''); // '.'과 소괄호 안의 숫자들을 제거합니다.
+                if (row.MMEAL_SC_NM === "조식") {
+                    morning = cleanedDish;
+                } else if (row.MMEAL_SC_NM === "중식") {
+                    lunch = cleanedDish;
+                } else if (row.MMEAL_SC_NM === "석식") {
+                    evening = cleanedDish;
+                }
+            });
+
+            // 클라이언트에게 조식, 중식, 석식에 해당하는 요리를 응답으로 보냅니다.
+
+            res.render("food", {
+                name: 'Current Time : ' + morning
+            });
+
         });
-
-        // 클라이언트에게 조식, 중식, 석식에 해당하는 요리를 응답으로 보냅니다.
-
-        res.render("food", {
-            name: 'Current Time : ' + morning
-        });
-
     });
+
+
 });
