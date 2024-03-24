@@ -28,8 +28,8 @@
 ### 사용 방법
 
 1. 프로젝트를 클론합니다.
-2. 필요한 라이브러리를 설치합니다: `npm install`.
-3. 서버를 실행합니다: `node app.js`.
+2. 필요한 라이브러리를 설치합니다: `npm install express axios request`.
+3. 서버를 실행합니다: `node index.js`.
 4. 웹 브라우저에서 `http://localhost:8000`에 접속하여 웹 애플리케이션을 사용합니다.
 
 ### 참고 사항
