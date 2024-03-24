@@ -7,14 +7,8 @@ const request = require('request');
 const fs = require('fs');
 const csv = require('csv-parser');
 
-
-// 8000번 포트로 지정
 const port = 8000;
-
-// 화면 엔진은 ejs로 설정한다.
 app.set("view engine", "ejs");
-
-// Express에서 정적파일 제공
 app.use('/static', express.static('static'));
 
 function formatDate(date,mode) {
@@ -25,7 +19,6 @@ function formatDate(date,mode) {
     else return `${year}${month}${day}`;
 }
 
-// test.ejs 실행
 app.get("/", (req, res) => {
     const currentDate = new Date();
     const formattedDate = formatDate(currentDate,0);
