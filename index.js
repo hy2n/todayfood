@@ -17,12 +17,21 @@ app.set("view engine", "ejs");
 // Express에서 정적파일 제공
 app.use('/static', express.static('static'));
 
+function formatDate(date,mode) {
+    const year = date.getFullYear();
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const day = date.getDate().toString().padStart(2, '0');
+    if (mode) return `${year}년 ${month}월 ${day}일`;
+    else return `${year}${month}${day}`;
+}
 
 // test.ejs 실행
 app.get("/", (req, res) => {
-    let today = new Date();
+    const currentDate = new Date();
+    const formattedDate = formatDate(currentDate,0);
     res.render("home", {
-        name: 'Current Time : ' + today
+        date: 'Current Time : ' + formatDate(currentDate,1),
+        url: formattedDate
     });
 })
 
@@ -60,7 +69,6 @@ app.get("/request/:date", (req, res) => {
             console.log("CSV 파일이 없습니다. 수동으로 설정해주세요.");
             return;
         }
-
         // CSV 데이터에서 원하는 값을 찾습니다.
         const BCode = data[0].BCode;
         const SchoolCode = data[0].SchoolCode;
@@ -86,12 +94,7 @@ app.get("/request/:date", (req, res) => {
             let evening = "";
 
             const mealServiceDietInfo = obj.mealServiceDietInfo;
-            if (!mealServiceDietInfo) {
-                morning = '미제공';
-                lunch = '미제공';
-                evening = '미제공';
-            }
-            else {
+            if (mealServiceDietInfo) {
                 const mealInfo = mealServiceDietInfo[1];
 
                 mealInfo.row.forEach(row => {
@@ -108,14 +111,18 @@ app.get("/request/:date", (req, res) => {
                 lunch = lunch.replace(/<br\/>/g, ', ');
                 evening = evening.replace(/<br\/>/g, ', ');
             }
-            let today = new Date();
-            // 클라이언트에게 조식, 중식, 석식에 해당하는 요리를 응답으로 보냅니다.
-            let year = today.getFullYear(); // 년도
-            let month = today.getMonth() + 1;  // 월
-            let date = today.getDate();  // 날짜
+
+            //급식 미제공 확인
+            morning = CheckValue(morning);
+            lunch = CheckValue(lunch);
+            evening = CheckValue(evening);
+
+            const currentDate = new Date();
+            const formattedDate = formatDate(currentDate,1);
+
 
             res.render("food", {
-                date: year + '/' + month + '/' + date + '일 급식',
+                date: formattedDate,
                 morning: morning,
                 lunch: lunch,
                 evening: evening
@@ -126,3 +133,8 @@ app.get("/request/:date", (req, res) => {
 
 
 });
+
+function CheckValue(ex) {
+    if (ex == "") return "미제공";
+    else return ex;
+}

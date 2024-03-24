@@ -2,17 +2,26 @@
 <title>FoodView</title>
 
 <body>
-    <div class="main">
-        <h1>
-            <%= date %>
-        </h1>
-
-        <iframe src="/request/<%= url %>" title="내용" width="100%" height="300px"></iframe>
-
-        <button>
-
-        </button>
-    </div>
+    <table border="2">
+        <tr>
+            <th>조식</th>
+            <td>
+                <%= morning %>
+            </td>
+        </tr>
+        <tr>
+            <th>중식</th>
+            <td>
+                <%= lunch %>
+            </td>
+        </tr>
+        <tr>
+            <th>석식</th>
+            <td>
+                <%= evening %>
+            </td>
+        </tr>
+    </table>
 
 </body>
 
