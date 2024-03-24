@@ -30,7 +30,7 @@ app.get("/", (req, res) => {
     const currentDate = new Date();
     const formattedDate = formatDate(currentDate,0);
     res.render("home", {
-        date: 'Current Time : ' + formatDate(currentDate,1),
+        date: formatDate(currentDate,1)+" 급식 확인",
         url: formattedDate
     });
 })

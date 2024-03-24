@@ -1,23 +1,25 @@
 <!DOCTYPE html>
 <title>FoodView</title>
-
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <body>
     <div class="main">
         <h1>
             <%= date %>
         </h1>
 
-        <iframe src="/request/<%= url %>?mode=webview" title="내용" width="100%" height="300px"></iframe>
+        <iframe src="/request/<%= url %>?mode=webview" title="FOODVIEW" width="100%" height="200px"></iframe>
 
-        <button>
-
+        <button onclick="window.location.href = './request/<%= url %>'">
+            상세 조회하기
         </button>
     </div>
 
 </body>
 
 <style>
-
+    iframe {
+        border : none;
+    }
     * {
         word-break:keep-all;
     }
@@ -37,29 +39,7 @@
         box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     }
 
-    h1 {
-        margin-top: 0;
-        font-weight: bold;
-        font-size: 24px;
-        color: #333;
-    }
-
-    table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 20px;
-    }
-
-    th, td {
-        padding: 10px;
-        text-align: left;
-    }
-
-    th {
-        background-color: #f2f2f2;
-    }
-
-    tr:nth-child(even) {
-        background-color: #f9f9f9;
+    button {
+        width: auto;
     }
 </style>

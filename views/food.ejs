@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <title>FoodView</title>
-
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <body>
     <div class="main">
         <h1>
@@ -27,15 +27,17 @@
                 </td>
             </tr>
         </table>
+        <button id="prevButton">이전 날짜</button>
+        <button id="nextButton">다음 날짜</button>
     </div>
 
 </body>
 
 <style>
-
     * {
-        word-break:keep-all;
+        word-break: keep-all;
     }
+
     body {
         font-family: Arial, sans-serif;
         margin: 0;
@@ -65,7 +67,8 @@
         margin-top: 20px;
     }
 
-    th, td {
+    th,
+    td {
         padding: 10px;
         text-align: left;
     }
@@ -78,3 +81,38 @@
         background-color: #f9f9f9;
     }
 </style>
+<script>
+    // URL에서 날짜를 가져와 기준 날짜로 설정
+    const url = window.location.href;
+    const dateFromUrl = url.substring(url.lastIndexOf('/') + 1);
+    const year = parseInt(dateFromUrl.substring(0, 4), 10);
+    const month = parseInt(dateFromUrl.substring(4, 6), 10) - 1;
+    const day = parseInt(dateFromUrl.substring(6), 10);
+    const currentDate = new Date(year, month, day);
+
+    // 이전 날짜 버튼 클릭 핸들러
+    document.getElementById('prevButton').addEventListener('click', () => {
+        currentDate.setDate(currentDate.getDate() - 1);
+        displayDate(currentDate);
+    });
+
+    // 다음 날짜 버튼 클릭 핸들러
+    document.getElementById('nextButton').addEventListener('click', () => {
+        currentDate.setDate(currentDate.getDate() + 1);
+        displayDate(currentDate);
+    });
+
+    function displayDate(date) {
+        const formattedDate = formatDate(date);
+        const newUrl = `${url.substring(0, url.lastIndexOf('/') + 1)}${formattedDate}`;
+        window.history.pushState({}, '', newUrl);
+        location.reload();
+    }
+
+    function formatDate(date) {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}${month}${day}`;
+    }
+</script>
