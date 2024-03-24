@@ -65,6 +65,9 @@ app.get("/request/:date", (req, res) => {
     }
 
     readCSV('info.csv', function (data) {
+
+        const mode = req.query.mode;
+
         if (!data) {
             console.log("CSV 파일이 없습니다. 수동으로 설정해주세요.");
             return;
@@ -119,9 +122,9 @@ app.get("/request/:date", (req, res) => {
 
             const currentDate = new Date();
             const formattedDate = formatDate(currentDate,1);
-
-
-            res.render("food", {
+            if (mode) var render = "food_webview";
+            else var render = "food";
+            res.render(render, {
                 date: formattedDate,
                 morning: morning,
                 lunch: lunch,
